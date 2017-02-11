@@ -6,6 +6,30 @@
             .error {
                 color: red;
             }
+
+        body {
+            font-family: sans-serif;
+            width: 800px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+        label {
+            display: block;
+            font-size: 20px;
+        }
+
+        input[type=text] {
+            width: 400px;
+            font-size: 20px;
+            padding: 2px;
+        }
+        textarea {
+            width: 400px;
+            height: 200px;
+            font-size: 17px;
+            font-family: monospace;
+
+        }
         </style>
     </head>
     <body>
@@ -13,7 +37,30 @@
             <a href="/">Caid's Blog</a>
         </h1>
 
+        <form method="post">
+            <label>
+                <div>title </div>
+                <input type="text" name="title" value="{{title}}">
+            </label>
+            <label>
+                <div>art</div>
+                <textarea name="blog"> {{blog}} </textarea>
+            </label>
+
+            <div class="error">{{error}}</div>
+
+            <input type="submit">
+        </form>
+
         {% block content %}
+        <hr>
+            {% for blog in blogs %}
+                <div class="blog">
+                    <div class="blog-title"> {{blog.title}} </div>
+                    <pre class="blog-body">{{blog.blog}}</pre>
+                </div>
+            {% endfor %}
+
         {% endblock %}
 
     </body>

@@ -3,21 +3,58 @@ import webapp2
 import jinja2
 import os
 
+from google.appengine.ext import db
+
 template_dir = os.path.join(os.path.dirname(__file__), "templates")
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir))
+jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),
+                                autoescape = True)
 
-class MainHandler(webapp2.RequestHandler):
+class BlogPost(db.Model):
+    title = db.StringProperty(required = True)
+    blog = db.TextProperty(required = True)
+    created = db.DateTimeProperty(auto_now_add = True)
+
+class Handler(webapp2.RequestHandler):
+    def write(self, *a, **kw):
+        self.response.out.write(*a, **kw)
+
+    def render_str(self, template, **params):
+        t = jinja_env.get_template(template)
+        return t.render(params)
+
+    def render(self, template, **kw):
+        self.write(self.render_str(template, **kw))
+
+class MainHandler(Handler):
+    def render_front(self, title="", blog="", error=""):
+
+        blogs = db.GqlQuery("SELECT * FROM BlogPost order by created limit 5")
+        self.render("base.html", title=title, blog=blog, error=error, blogs=blogs)
+
     def get(self):
-        self.response.write('Hello world!')
+        self.render_front()
 
-class MainBlog(webapp2.RequestHandler):
+    def post(self):
+        title = self.request.get("title")
+        blog = self.request.get("blog")
+
+        if title and blog:
+            a = BlogPost(title = title, blog = blog)
+            a.put()
+            self.redirect("/")
+        else:
+            error = "we need both a title and some story brah!"
+            self.render("error.html", title=title, blog=blog, error=error)
+
+class MainBlog(Handler):
     def get(self):
-        pass
-        #self.response.write('Your 5 most recent Posts!')
+        header = "Your 5 most recent Posts!"
+        self.render("base.html", title=header)
 
-class ViewPostHandler(webapp2.RequestHandler):
+class ViewPostHandler(Handler):
     def get(self, id):
-        self.response.write(id)
+        #POST.get_by_id(id)
+        self.response.write("i have {0}".format(id))
 
 
 app = webapp2.WSGIApplication([
