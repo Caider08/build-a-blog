@@ -28,8 +28,32 @@ class Handler(webapp2.RequestHandler):
 class MainHandler(Handler):
     def render_front(self, title="", blog="", error=""):
 
-        blogs = db.GqlQuery("SELECT * FROM BlogPost order by created limit 5")
-        self.render("base.html", title=title, blog=blog, error=error, blogs=blogs)
+        blogs = db.GqlQuery("SELECT * FROM BlogPost order by created DESC limit 5")
+        self.render("main-blog.html", title=title, blog=blog, error=error, blogs=blogs)
+
+    def get(self):
+        self.render_front()
+
+
+class MainBlog(Handler):
+    def render_front(self, title="", blog="", error=""):
+
+        blogs = db.GqlQuery("SELECT * FROM BlogPost order by created DESC limit 5")
+        self.render("main-blog.html", title=title, blog=blog, error=error, blogs=blogs)
+
+    def get(self):
+        self.render_front()
+
+class ViewPostHandler(Handler):
+    def get(self, id):
+        BlogPost.get_by_id(id)
+        self.response.write("i have {0}".format(id))
+
+class NewPost(Handler):
+    def render_front(self, title="", blog="", error=""):
+
+        blogs = db.GqlQuery("SELECT * FROM BlogPost order by created DESC limit 5")
+        self.render("new-post.html", title=title, blog=blog, error=error)
 
     def get(self):
         self.render_front()
@@ -44,21 +68,14 @@ class MainHandler(Handler):
             self.redirect("/")
         else:
             error = "we need both a title and some story brah!"
-            self.render("error.html", title=title, blog=blog, error=error)
+            self.render("new-post.html", title=title, blog=blog, error=error)
 
-class MainBlog(Handler):
-    def get(self):
-        header = "Your 5 most recent Posts!"
-        self.render("base.html", title=header)
 
-class ViewPostHandler(Handler):
-    def get(self, id):
-        #POST.get_by_id(id)
-        self.response.write("i have {0}".format(id))
 
 
 app = webapp2.WSGIApplication([
     webapp2.Route('/blog/<id:\d+>', ViewPostHandler),
     ('/', MainHandler),
-    ('/blog', MainBlog)
+    ('/blog', MainBlog),
+    ('/new-post', NewPost)
 ], debug=True)

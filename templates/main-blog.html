@@ -1,7 +1,19 @@
-{extends "base.html" %}
+{% extends "base.html" %}
 
 
 {% block content %}
 
+<h5>
+    <a href="/new-post"> New Blog Entry </a>
+</h5>
+
+<hr>
+    {% for blog in blogs %}
+        <div class="blog">
+            <div class="blog-title"> {{blog.title}} </div>
+            <pre class="blog-body">{{blog.blog}}</pre>
+        </div>
+    {% endfor %}
+</hr>
 
 {% endblock %}
