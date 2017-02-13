@@ -10,7 +10,7 @@
 <hr>
     {% for blog in blogs %}
         <div class="blog">
-            <div class="blog-title"> {{blog.title}} </div>
+            <a class="blog-title" href="/blog/{{blog.key().id()}}"> {{blog.title}} </a>
             <pre class="blog-body">{{blog.blog}}</pre>
         </div>
     {% endfor %}
